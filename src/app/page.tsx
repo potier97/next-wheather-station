@@ -25,6 +25,7 @@ export interface NodeSelectedInterface {
 
 export default function Home() {
 
+  const [nodeName, setNodeName] = useState<string>('');
   const [selectedNode, setSelectedNode] = useState<NodeSelectedInterface>();
   const [nodes, setNodes] = useState<NodeInterface[]>([]);
   const [status, setStatus] = useState<boolean>(false);
@@ -36,10 +37,14 @@ export default function Home() {
         // Suscripción a cambios en tiempo real
         const unsubscribe = onValue(nodesRef, (snapshot) => {
           const data = snapshot.val();
-          if (data) {
-            setStatus(true);
-          }
+          setStatus(true);
           setNodes(data);
+          if (nodeName?.length > 0) {
+            const selectedNode: NodeSelectedInterface = data[nodeName as any] as any;
+            if (selectedNode) {
+              setSelectedNode(() => selectedNode);
+            }
+          }
         });
         return () => unsubscribe();
       } catch (error) {
@@ -47,12 +52,13 @@ export default function Home() {
       }
     };
     fetchData();
-  }, []);
+  }, [nodeName]);
  
 
   const handleNodeSelect = (selected: any) => {
     const selectedNode: NodeSelectedInterface = nodes[selected] as any;
     if (selectedNode) {
+      setNodeName(selected);
       setSelectedNode(selectedNode);
     }
   };
